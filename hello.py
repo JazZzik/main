@@ -1,4 +1,5 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
+from json import dump
 app = Flask(__name__)
 
 @app.route('/')
@@ -15,7 +16,7 @@ def encrypt():
     else:
         #RSA
         pass'''
-    return 'encrypt!'
+    return jsonify({'success':True})
 
 
 @app.route('/decrypt')

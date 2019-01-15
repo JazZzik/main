@@ -2,11 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
     <title>кока</title>
     <h1>Добро пожаловать! Говорите!!</h1>
 </head>
 <body>
     <script>
+        function send_encrypt_cmd(file_name){
+            $.ajax({
+                url:"/encrypt",
+                method: "GET",
+                data: {'cmd': 'encrypt', 'filename': file_name}
+            }).fail(function(data, textStatus, jqXHR){
+
+            }).done(function(data, textStatus, jqXHR){
+                console.log(data);
+            });
+        }
         window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
         if ('SpeechRecognition' in window) {
           console.log("speech recognition API supported");
@@ -16,11 +28,22 @@
         const recognition = new window.SpeechRecognition();
         recognition.lang = 'ru-RU';
         recognition.continuous = true;
+
         recognition.onresult = (event) => {
           const speechToText = event.results[0][0].transcript;
           console.log(speechToText);
+          if (speechToText.toUpperCase().includes('ЗАШИФРОВАТЬ') || speechToText.toUpperCase().includes('ENCRYPT') || speechToText.toUpperCase().includes('ЗАКОДИРОВАТЬ') || speechToText.toUpperCase().includes('ЗАШИФРУЙ') || speechToText.toUpperCase().includes('ШИФРОВАТЬ') || speechToText.toUpperCase().includes('КОДИРОВАТЬ') || speechToText.toUpperCase().includes('ЗАШИФРОВКА')){
+            send_encrypt_cmd('file.txt');
+          }
+          if (speechToText.toUpperCase().includes('ПРИВЕТ') || speechToText.toUpperCase().includes('HELLO')) {
+            console.log('encrypt cmd!');
+          }
+          if (speechToText.toUpperCase().includes('РАСШИФРОВАТЬ') || speechToText.toUpperCase().includes('РАСКОДИРОВАТЬ') || speechToText.toUpperCase().includes('DECRYPT') || speechToText.toUpperCase().includes('РАСШИФРУЙ') || speechToText.toUpperCase().includes('ДЕШИФРУЙ') || speechToText.toUpperCase().includes('ДЕШИФРОВАТЬ') || speechToText.toUpperCase().includes('ДЕШИФРИРОВАТЬ') || speechToText.toUpperCase().includes('') || speechToText.toUpperCase().includes('ДЕШИФРОВКА') || speechToText.toUpperCase().includes('РАСШИФРОВКА')){
+            console.log('decrypt cmd!');
+          }
           recognition.stop();
         }
+
         recognition.onend = (event) =>{
             recognition.start();
         }
