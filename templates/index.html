@@ -3,15 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
-    <title>кока</title>
-    <h1>Добро пожаловать! Говорите!!</h1>
+    <title>programm</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+    <center class="slova"><h1></h1></center>
+    <style>
+        body{
+            background-image: url("{{ url_for('static', filename='img//fon.png') }}");
+            height:50%;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: relative;
+            margin-top:45%;
+        }
+    </style>
+
 </head>
 <body>
     <script>
-        var audio1 = new Audio('{{ url_for('static', filename='Выберите файл.wav') }}');
-        var audio0 = new Audio('{{ url_for('static', filename='Hello.wav') }}');
-        var audio2 = new Audio('{{ url_for('static', filename='Encr.wav') }}');
-        var audio3 = new Audio('{{ url_for('static', filename='Error.wav') }}');
+        var audio1 = new Audio('{{ url_for('static', filename='выберите файл.wav') }}');
+        var audio0 = new Audio('{{ url_for('static', filename='ПРИВЕТ.wav') }}');
+        var audio2 = new Audio('{{ url_for('static', filename='Файл зашифрован.wav') }}');
+        var audio3 = new Audio('{{ url_for('static', filename='Файл расшифрован.wav') }}');
+        var audio4 = new Audio('{{ url_for('static', filename='Ошибка, повторите запрос.wav') }}');
+        var audio5 = new Audio('{{ url_for('static', filename='подпись.wav') }}');
         let operation = 0;
 
         function send_encrypt_cmd(file_name){
@@ -25,7 +39,7 @@
                 if(data['success'] == true){
                     audio2.play();
                 if(data['success'] == false){
-                    audio3.play();
+                    audio4.play();
                     console.log(data);
                 }
             }});
@@ -40,11 +54,30 @@
 
             }).done(function(data, textStatus, jqXHR){
                 if(data['success'] == true){
-                    audio2.play();
-                if(data['success'] == false){
                     audio3.play();
+                }
+                else{
+                    audio4.play();
+                }
                 console.log(data);
             });
+        }
+
+        function send_sign_cmd(file_name){
+            $.ajax({
+                url:"/sign",
+                method: "GET",
+                data: {'cmd': 'sign', 'filename': file_name}
+            }).fail(function(data, textStatus, jqXHR){
+
+            }).done(function(data, textStatus, jqXHR){
+                if(data['success'] == true){
+                    audio5.play();
+                if(data['success'] == false){
+                    audio4.play();
+                    console.log(data);
+                }
+            }});
         }
 
         function find_key_words(text){
@@ -63,14 +96,21 @@
                 audio1.play();
                 return 2;
             }
+
+            if (text.toUpperCase().includes('ПОДПИСЬ')) {
+                audio1.play();
+                return 4;
+            }
         }
 
         function execute_cmd(cmd_num, text){
             switch(cmd_num){
                 case 1: send_encrypt_cmd(text); break;
                 case 2: send_decrypt_cmd(text); break;
+                case 4: send_sign_cmd(text); break;
             }
         }
+
 
         window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
         if ('SpeechRecognition' in window) {
@@ -87,7 +127,8 @@
           console.log(speechToText);
           if (operation > 0 && operation != 3){
             // отправить на сервер название файла
-            execute_cmd(operation, speechToText);
+            filename = speechToText.replace(/\s+/g, '');
+            execute_cmd(operation, filename);
             operation = 0;
           } else{
             //искать ключевые слова

@@ -1,15 +1,19 @@
 import rsa, os
 
+
 def keys_generate(byte):
     (pubkey, privkey) = rsa.newkeys(byte)
-    d = open('crypt\\pubkey.pem', 'wb')
-    r = open('crypt\\privkey.pem', 'wb')
+    d = open('static\\key\\pubkey.pem', 'wb')
+    r = open('static\\key\\privkey.pem', 'wb')
     r.write(privkey.save_pkcs1(format='PEM'))
     d.write(pubkey.save_pkcs1(format='PEM'))
     r.close()
     d.close()
 
-def encrypt_RSA(filename,file_pubkey):
+
+def encrypt_RSA(filename):
+    filename = (filename)
+    file_pubkey = ('static\\key\\pubkey.pem')
     file = open(filename, 'rb')
     message = file.read()
     file.close()
@@ -23,7 +27,10 @@ def encrypt_RSA(filename,file_pubkey):
     os.remove(filename)
 
 
-def decrypt_RSA(filename, file_privkey):
+
+def decrypt_RSA(filename):
+    filename = (filename + '.rsa')
+    file_privkey = ('static\\key\\privkey.pem')
     file = open(filename, 'rb')
     crypto = file.read()
     file.close()
@@ -36,5 +43,8 @@ def decrypt_RSA(filename, file_privkey):
     s.close()
     os.remove(filename)
 
-encrypt_RSA('crypt\\asd.txt','crypt\\pubkey.pem')
-# decrypt_RSA('crypt\\asd.txt.rsa','crypt\\privkey.pem')
+
+def sign_rsa(filename):
+    filename = ('static\\file' + filename + '.rsa')
+    file_privkey = ('static\\key\\privkey.pem')
+    signature = rsa.sign(filename, file_privkey, 'SHA-1')

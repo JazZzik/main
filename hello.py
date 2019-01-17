@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify
 import AES
-# import RSA
+import RSA
 from flask import request
 app = Flask(__name__)
 
@@ -40,6 +40,16 @@ def decrypt():
 
 @app.route('/sign')
 def sign():
+    file = request.args.get('filename')
+    pwd = open('crypt//asd.txt').read()
+    print(pwd)
+    result = True
+    try:
+        RSA.keys_generate(1024)
+        RSA.encrypt_RSA('static//files//' + file)
+    except Exception as e:
+        print(e)
+        result = False
     return 'Sign'
 
 
