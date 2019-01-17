@@ -53,5 +53,17 @@ def sign():
     return 'Sign'
 
 
+@app.route('/generate_keys')
+def sign():
+    pwd = request.args.get('pwd')
+    result = True
+    try:
+        open('crypt//asd.txt', 'w').write(pwd)
+    except Exception as e:
+        print(e)
+        result = False
+    return jsonify({'success': result})
+
+
 if __name__ == '__main__':
     app.run(debug=True, use_debugger=False, use_reloader=False, passthrough_errors=True)
