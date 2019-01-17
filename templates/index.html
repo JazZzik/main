@@ -8,6 +8,12 @@
 </head>
 <body>
     <script>
+        var audio1 = new Audio('{{ url_for('static', filename='Выберите файл.wav') }}');
+        var audio0 = new Audio('{{ url_for('static', filename='Hello.wav') }}');
+        var audio2 = new Audio('{{ url_for('static', filename='Encr.wav') }}');
+        var audio3 = new Audio('{{ url_for('static', filename='Error.wav') }}');
+        let operation = 0;
+
         function send_encrypt_cmd(file_name){
             $.ajax({
                 url:"/encrypt",
@@ -16,9 +22,56 @@
             }).fail(function(data, textStatus, jqXHR){
 
             }).done(function(data, textStatus, jqXHR){
+                if(data['success'] == true){
+                    audio2.play();
+                if(data['success'] == false){
+                    audio3.play();
+                    console.log(data);
+                }
+            }});
+        }
+
+        function send_decrypt_cmd(file_name){
+            $.ajax({
+                url:"/decrypt",
+                method: "GET",
+                data: {'cmd': 'decrypt', 'filename': file_name}
+            }).fail(function(data, textStatus, jqXHR){
+
+            }).done(function(data, textStatus, jqXHR){
+                if(data['success'] == true){
+                    audio2.play();
+                if(data['success'] == false){
+                    audio3.play();
                 console.log(data);
             });
         }
+
+        function find_key_words(text){
+            if (text.toUpperCase().includes('ЗАШИФРОВАТЬ') || text.toUpperCase().includes('ENCRYPT') || text.toUpperCase().includes('ЗАКОДИРОВАТЬ') || text.toUpperCase().includes('ЗАШИФРУЙ') || text.toUpperCase().includes('ШИФРОВАТЬ') || text.toUpperCase().includes('КОДИРОВАТЬ') || text.toUpperCase().includes('ЗАШИФРОВКА')){
+                audio1.play();
+                return 1;
+            }
+            if (text.toUpperCase().includes('ПРИВЕТ') || text.toUpperCase().includes('HELLO')) {
+                console.log('ПРИВЕТ!');
+                audio0.play().catch(function(error) {
+                    console.log(error);
+                });
+                return 3;
+            }
+            if (text.toUpperCase().includes('РАСШИФРОВАТЬ') || text.toUpperCase().includes('РАСКОДИРОВАТЬ') || text.toUpperCase().includes('DECRYPT') || text.toUpperCase().includes('РАСШИФРУЙ') || text.toUpperCase().includes('ДЕШИФРУЙ') || text.toUpperCase().includes('ДЕШИФРОВАТЬ') || text.toUpperCase().includes('ДЕШИФРИРОВАТЬ') || text.toUpperCase().includes('ДЕШИФРОВКА') || text.toUpperCase().includes('РАСШИФРОВКА')){
+                audio1.play();
+                return 2;
+            }
+        }
+
+        function execute_cmd(cmd_num, text){
+            switch(cmd_num){
+                case 1: send_encrypt_cmd(text); break;
+                case 2: send_decrypt_cmd(text); break;
+            }
+        }
+
         window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
         if ('SpeechRecognition' in window) {
           console.log("speech recognition API supported");
@@ -32,14 +85,13 @@
         recognition.onresult = (event) => {
           const speechToText = event.results[0][0].transcript;
           console.log(speechToText);
-          if (speechToText.toUpperCase().includes('ЗАШИФРОВАТЬ') || speechToText.toUpperCase().includes('ENCRYPT') || speechToText.toUpperCase().includes('ЗАКОДИРОВАТЬ') || speechToText.toUpperCase().includes('ЗАШИФРУЙ') || speechToText.toUpperCase().includes('ШИФРОВАТЬ') || speechToText.toUpperCase().includes('КОДИРОВАТЬ') || speechToText.toUpperCase().includes('ЗАШИФРОВКА')){
-            send_encrypt_cmd('file.txt');
-          }
-          if (speechToText.toUpperCase().includes('ПРИВЕТ') || speechToText.toUpperCase().includes('HELLO')) {
-            console.log('encrypt cmd!');
-          }
-          if (speechToText.toUpperCase().includes('РАСШИФРОВАТЬ') || speechToText.toUpperCase().includes('РАСКОДИРОВАТЬ') || speechToText.toUpperCase().includes('DECRYPT') || speechToText.toUpperCase().includes('РАСШИФРУЙ') || speechToText.toUpperCase().includes('ДЕШИФРУЙ') || speechToText.toUpperCase().includes('ДЕШИФРОВАТЬ') || speechToText.toUpperCase().includes('ДЕШИФРИРОВАТЬ') || speechToText.toUpperCase().includes('') || speechToText.toUpperCase().includes('ДЕШИФРОВКА') || speechToText.toUpperCase().includes('РАСШИФРОВКА')){
-            console.log('decrypt cmd!');
+          if (operation > 0 && operation != 3){
+            // отправить на сервер название файла
+            execute_cmd(operation, speechToText);
+            operation = 0;
+          } else{
+            //искать ключевые слова
+            operation = find_key_words(speechToText);
           }
           recognition.stop();
         }

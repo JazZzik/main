@@ -5,12 +5,13 @@ buff = 64*1024
 
 
 def encrypt (filename, password):
-    pe.encryptFile(filename,filename+'.AES',password,buff)
+    pe.encryptFile(filename,filename+'.txt.CRYPT',password,buff)
     os.remove(filename)
 
 
 def decrypt (filename, password):
-    pe.decryptFile(filename,filename[:-4],password,buff)
+    filename = filename + '.txt.CRYPT'
+    pe.decryptFile(filename,filename[:-10],password,buff)
     os.remove(filename)
 
 

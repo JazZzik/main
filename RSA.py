@@ -1,4 +1,5 @@
 import rsa, os
+
 def keys_generate(byte):
     (pubkey, privkey) = rsa.newkeys(byte)
     d = open('crypt\\pubkey.pem', 'wb')
