@@ -27,6 +27,7 @@ def encrypt():
 @app.route('/decrypt')
 def decrypt():
     file = request.args.get('filename')
+    print(file)
     pwd = open('crypt//asd.txt').read()
     print(pwd)
     result = True
@@ -50,15 +51,16 @@ def sign():
     except Exception as e:
         print(e)
         result = False
-    return 'Sign'
-
+    return jsonify({'success': result})
 
 @app.route('/generate_keys')
-def sign():
+def gen_keys():
     pwd = request.args.get('pwd')
     result = True
     try:
-        open('crypt//asd.txt', 'w').write(pwd)
+        f = open('crypt//asd.txt', 'w')
+        f.write(pwd)
+        f.close()
     except Exception as e:
         print(e)
         result = False

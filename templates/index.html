@@ -5,20 +5,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
     <title>programm</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
-    <center class="slova"><h1></h1></center>
-    <style>
-        body{
-            background-image: url("{{ url_for('static', filename='img//fon.png') }}");
-            height:50%;
-            background-repeat: no-repeat;
-            background-position: center;
-            position: relative;
-            margin-top:45%;
-        }
-    </style>
-
 </head>
 <body>
+    <center>
+        <img src="{{ url_for('static', filename='img//fon.png') }}" alt="Письма мастера дзен"/><br>
+        <font size="50">
+            <label id="Me">Я:</label><br>
+            <label id="Soft">Программа: </label>
+        </font>
+    </center>
     <script>
         var audio1 = new Audio('{{ url_for('static', filename='выберите файл.wav') }}');
         var audio0 = new Audio('{{ url_for('static', filename='ПРИВЕТ.wav') }}');
@@ -26,6 +21,9 @@
         var audio3 = new Audio('{{ url_for('static', filename='Файл расшифрован.wav') }}');
         var audio4 = new Audio('{{ url_for('static', filename='Ошибка, повторите запрос.wav') }}');
         var audio5 = new Audio('{{ url_for('static', filename='подпись.wav') }}');
+        var audio6 = new Audio('{{ url_for('static', filename='HELP.wav') }}');
+        var audio7 = new Audio('{{ url_for('static', filename='keys.wav') }}');
+        var audio8 = new Audio('{{ url_for('static', filename='keyword.wav') }}');
         let operation = 0;
 
         function send_encrypt_cmd(file_name){
@@ -38,8 +36,10 @@
             }).done(function(data, textStatus, jqXHR){
                 if(data['success'] == true){
                     audio2.play();
+                    $("#Soft").html('Программа: Файл зашифрован');
                 if(data['success'] == false){
                     audio4.play();
+                    $("#Soft").html('Программа: Ошибка, повторите запрос');
                     console.log(data);
                 }
             }});
@@ -55,9 +55,11 @@
             }).done(function(data, textStatus, jqXHR){
                 if(data['success'] == true){
                     audio3.play();
+                    $("#Soft").html('Программа: Файл расшифрован');
                 }
                 else{
                     audio4.play();
+                    $("#Soft").html('Программа: Ошибка, повторите запрос');
                 }
                 console.log(data);
             });
@@ -73,14 +75,16 @@
             }).done(function(data, textStatus, jqXHR){
                 if(data['success'] == true){
                     audio5.play();
+                    $("#Soft").html('Программа: Файл подписан');
                 if(data['success'] == false){
                     audio4.play();
+                    $("#Soft").html('Программа: Ошибка, повторите запрос');
                     console.log(data);
                 }
             }});
         }
 
-        function send_sign_cmd(password){
+        function send_gen_cmd(password){
             $.ajax({
                 url:"/generate_keys",
                 method: "GET",
@@ -89,34 +93,53 @@
 
             }).done(function(data, textStatus, jqXHR){
                 if(data['success'] == true){
+                    audio7.play();
+                    $("#Soft").html('Программа: Ключи сгенерированы');
                 if(data['success'] == false){
+                    audio4.play();
+                    $("#Soft").html('Программа: Ошибка, повторите запрос');
                     console.log(data);
                 }
             }});
         }
 
+
         function find_key_words(text){
             if (text.toUpperCase().includes('ЗАШИФРОВАТЬ') || text.toUpperCase().includes('ENCRYPT') || text.toUpperCase().includes('ЗАКОДИРОВАТЬ') || text.toUpperCase().includes('ЗАШИФРУЙ') || text.toUpperCase().includes('ШИФРОВАТЬ') || text.toUpperCase().includes('КОДИРОВАТЬ') || text.toUpperCase().includes('ЗАШИФРОВКА')){
                 audio1.play();
+                $("#Soft").html('Программа: Выберите файл ');
                 return 1;
             }
             if (text.toUpperCase().includes('ПРИВЕТ') || text.toUpperCase().includes('HELLO')) {
                 console.log('ПРИВЕТ!');
+                $("#Soft").html('Программа: Привет!');
                 audio0.play().catch(function(error) {
+                    console.log(error);
+                });
+                return 3;
+            }
+            if (text.toUpperCase().includes('ПОМОЩЬ') || text.toUpperCase().includes('ЧТО ДЕЛАТЬ') || text.toUpperCase().includes('ЧТО ТЫ МОЖЕШЬ')) {
+                console.log('ПОМОЩЬ!');
+                $("#Soft").html('Программа: Я могу шифровать, расшифровывать и подписывать файлы, чтобы вызвать функцию вам достаточно озвучить её');
+                audio6.play().catch(function(error) {
                     console.log(error);
                 });
                 return 3;
             }
             if (text.toUpperCase().includes('РАСШИФРОВАТЬ') || text.toUpperCase().includes('РАСКОДИРОВАТЬ') || text.toUpperCase().includes('DECRYPT') || text.toUpperCase().includes('РАСШИФРУЙ') || text.toUpperCase().includes('ДЕШИФРУЙ') || text.toUpperCase().includes('ДЕШИФРОВАТЬ') || text.toUpperCase().includes('ДЕШИФРИРОВАТЬ') || text.toUpperCase().includes('ДЕШИФРОВКА') || text.toUpperCase().includes('РАСШИФРОВКА')){
                 audio1.play();
+                $("#Soft").html('Программа: Выберите файл ');
                 return 2;
             }
 
-            if(text.toUpperCase().includes('СГЕНЕРИРОВАТЬ') || text.toUpperCase().includes('GENERATE')){
+            if(text.toUpperCase().includes('СГЕНЕРИРОВАТЬ') || text.toUpperCase().includes('GENERATE') || text.toUpperCase().includes('ГЕНЕРИРОВАТЬ')) {
+                audio8.play();
+                $("#Soft").html('Программа: Скажите кодовое слово');
                 return 5;
             }
 
             if (text.toUpperCase().includes('ПОДПИСЬ')) {
+                $("#Soft").html('Программа: Выберите файл ');
                 audio1.play();
                 return 4;
             }
@@ -127,7 +150,8 @@
                 case 1: send_encrypt_cmd(text); break;
                 case 2: send_decrypt_cmd(text); break;
                 case 4: send_sign_cmd(text); break;
-                case 5: send_generate_cmd(text); break;
+                case 5: send_gen_cmd(text); break;
+                (text); break;
             }
         }
 
@@ -145,6 +169,8 @@
         recognition.onresult = (event) => {
           const speechToText = event.results[0][0].transcript;
           console.log(speechToText);
+          $('#Me').html("Я: "+speechToText);
+          $("#Soft").html('Программа: ');
           if (operation > 0 && operation != 3){
             // отправить на сервер название файла
             filename = speechToText.replace(/\s+/g, '');

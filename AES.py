@@ -8,14 +8,14 @@ def encrypt (filename, password):
     if "CRYPT" in filename:
         return
     else:
-        pe.encryptFile(filename,filename+'.txt.CRYPT',password,buff)
+        pe.encryptFile(filename,filename+'.CRYPT',password,buff)
         os.remove(filename)
 
 
 def decrypt (filename, password):
+    filename = filename + '.CRYPT'
     if "CRYPT" in filename:
-        filename = filename + '.txt.CRYPT'
-        pe.decryptFile(filename,filename[:-10],password,buff)
+        pe.decryptFile(filename,filename[:-6],password,buff)
         os.remove(filename)
     else:
         return
